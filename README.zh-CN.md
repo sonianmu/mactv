@@ -7,6 +7,11 @@
 **网站：https://mactv-6k2.pages.dev** · [English](README.md) · [概念：每一部分为什么存在](docs/concepts.md) · [讲解网页](site/public/index.html) ·
 [给 agent：AGENTS.md](AGENTS.md) · [协议](docs/protocol.md)
 
+![我们电视现在的主页。顶部的 YouTube 和 Apple Music 在 Mac 上的电视桌面里打开；下方的专辑来自 Mac 上运行的数据服务。](docs/images/tv-home.jpg)
+
+*我们电视现在的主页。顶部的 YouTube 和 Apple Music 会在 Mac 上属于电视的桌面里打开；下面"最近播放"的专辑，
+来自 Mac 上运行的 Apple Music 数据服务。这个主页启动器本身是另一个项目，不在本仓库中。*
+
 ## 站位
 
 大多数家庭都有一台性能很强、一天里大部分时间闲着的电脑，也有几块弱屏幕：老电视、停止更新的平板。它们的屏幕和
@@ -70,6 +75,23 @@ python3 tests/test_protocol.py        # Mac 端以测试模式运行：合成画
 - 画面流没有加密，只适合在家庭网络里用。
 - 一次只能连一台电视。
 - 目前只支持 Android 电视，其他显示设备需要另写接收端。
+
+## 网页
+
+![MacTV 网页](docs/images/site.jpg)
+
+[mactv-6k2.pages.dev](https://mactv-6k2.pages.dev) 用一个书房和一个客厅的剖面图，滚动讲解这个项目。源码在
+[site/](site/README.md)。
+
+## 致谢
+
+- [cleanyourtv](https://github.com/Gathin23/cleanyourtv) 启发了这个项目。它让编程 agent 通过 ADB 清理安卓电视，
+  换上简洁的主页；让我们看到，可以由 agent 来改造客厅里的电视。
+- 网页上的插图用 [Anatomy](https://github.com/wheresryan22/anatomy)（MIT 许可）绘制，代码及其许可证放在
+  `site/vendor/anatomy/`。
+- 安卓接收端用 Gradle wrapper（Apache 2.0）构建，位于 `tv/gradle/wrapper/`。
+- Apple Music 和 YouTube 两个应用运行的是各自官方的网页播放器，通过 Chrome DevTools Protocol 控制。本项目与
+  Apple、Google 及以上作者均无关联。
 
 ## 许可
 

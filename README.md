@@ -7,6 +7,12 @@ screen mirroring: the Mac and the TV share one computer at the same time, and ne
 **Website: https://mactv-6k2.pages.dev** · [中文说明](README.zh-CN.md) · [Concepts: why each part exists](docs/concepts.md) · [Explainer page](site/public/index.html) ·
 [For agents: AGENTS.md](AGENTS.md) · [Protocol](docs/protocol.md)
 
+![The home screen of our TV. YouTube and Apple Music in the top bar open on the TV's own desktop on the Mac; the albums come from a data service running on the Mac.](docs/images/tv-home.jpg)
+
+*Our TV's home screen today. YouTube and Apple Music in the top bar open on the TV's own desktop on the Mac,
+and the recently played albums come from the Apple Music data service running on the Mac. The home screen
+launcher itself is a separate project and is not part of this repository.*
+
 ## Where it stands
 
 Most homes have one strong computer that is idle most of the day, and several weak screens: an old TV, or a
@@ -79,6 +85,24 @@ Limits:
 - The stream is unencrypted, so use it on a home network only.
 - One TV at a time.
 - Android TVs only (other displays need a receiver).
+
+## The web page
+
+![The MacTV web page](docs/images/site.jpg)
+
+[mactv-6k2.pages.dev](https://mactv-6k2.pages.dev) explains the project by scrolling through a study and a
+living room. Its source is in [site/](site/README.md).
+
+## Acknowledgements
+
+- [cleanyourtv](https://github.com/Gathin23/cleanyourtv) inspired this project. It has a coding agent clean
+  up an Android TV over ADB and replace its home screen with a simple launcher; it showed us that an agent
+  can be the one who adapts the TV in your living room.
+- The figure on the web page is drawn with [Anatomy](https://github.com/wheresryan22/anatomy) (MIT), vendored
+  in `site/vendor/anatomy/` with its licence.
+- The Android receiver is built with the Gradle wrapper (Apache 2.0) in `tv/gradle/wrapper/`.
+- The Apple Music and YouTube apps run the services' own web players in Chrome, controlled through the
+  Chrome DevTools Protocol. This project is not affiliated with Apple, Google or the authors above.
 
 ## Licence
 
