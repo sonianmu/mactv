@@ -1,0 +1,37 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'tv.mactv.receiver'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'tv.mactv.receiver'
+        // Android TV 7 and later: MediaCodec in hardware, PixelCopy for the disconnect screen.
+        minSdk 24
+        // Sideloaded onto TVs, never published: a low target avoids newer background and visibility rules
+        // that some TV firmware enforces oddly.
+        targetSdk 28
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // Sideloaded over ADB: the debug key is fine; use your own key if you distribute builds.
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

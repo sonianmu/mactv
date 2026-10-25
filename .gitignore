@@ -1,0 +1,22 @@
+# builds
+host/.build/
+host/.swiftpm/
+tv/.gradle/
+tv/build/
+tv/receiver/build/
+tv/local.properties
+*.apk
+# never commit secrets, captures or personal data
+paired.json
+music-tokens.json
+token
+*.pcap
+*.pkl
+*.log
+config.json
+.DS_Store
+
+# page build output (site/public/index.html is committed; the intermediate figure is not)
+site/.build/
+node_modules/
+.wrangler/

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MacTV</string>
+    <string name="searching">Looking for your Mac</string>
+    <string name="searching_detail">Make sure the Mac is on and MacTV is installed. Menu key → Settings to enter its address.</string>
+    <string name="connecting">Connecting to</string>
+    <string name="connected">Connected</string>
+    <string name="waiting">Waiting for the picture…</string>
+    <string name="nodecoder">The TV\'s video decoder is busy</string>
+    <string name="nodecoder_detail">The TV system kept its decoder for live TV. Restart the TV and try again.</string>
+    <string name="pair_title">Pair with your Mac</string>
+    <string name="pair_detail">On the Mac, run:  mactv pair\nthen enter the six-digit PIN it shows.</string>
+    <string name="pair_wrong">That PIN was not right. Run mactv pair again for a new one.</string>
+    <string name="pair_ok">Pair</string>
+    <string name="paired">Paired</string>
+    <string name="lost_title">The connection to the Mac was lost</string>
+    <string name="lost_exit">Exit</string>
+    <string name="lost_wake">Wake the Mac and retry</string>
+    <string name="woke">Wake signal sent to the Mac</string>
+    <string name="why_stalled">The Mac is there, but its picture stopped. Other apps on the TV are not affected.</string>
+    <string name="why_noscreen">The Mac answers, but its MacTV host is not streaming (run mactv doctor on the Mac).</string>
+    <string name="why_nomac">The Mac can\'t be found: asleep, off, or not on this network.</string>
+    <string name="first_hint">Menu key: menu  ·  Hold back: leave</string>
+    <string name="menu_hint">Menu or back to close  ·  Hold back to leave</string>
+    <string name="menu_desktop">Desktop</string>
+    <string name="menu_keyboard">Keyboard</string>
+    <string name="menu_fill">Fill window</string>
+    <string name="menu_pointer">Pointer mode</string>
+    <string name="menu_keys">Key mode</string>
+    <string name="menu_settings">Settings</string>
+    <string name="mode_pointer">Pointer mode: arrows move, OK clicks</string>
+    <string name="mode_keys">Key mode: arrows and OK go to the Mac as keys</string>
+    <string name="settings_address">Mac address</string>
+    <string name="settings_forget">Forget this Mac (pair again)</string>
+    <string name="search">Search</string>
+    <string name="type_to_mac">Type to the Mac</string>
+    <string name="send">Send</string>
+</resources>

@@ -1,0 +1,45 @@
+/* materials: a windowless 1970s office interior. Off-white walls, green carpet, green felt screens,
+   cream terminal equipment, white laminate, oatmeal upholstery, dark teal screens with pale cyan figures */
+.iso[data-theme="light"] {
+  --anatomy-paper:#eaebe6; --anatomy-card:#eaebe6; --anatomy-face:#f1f2ee; --anatomy-top:#f1f2ee;
+  --anatomy-shade-0:#d3d5cf; --anatomy-shade-1:#dadcd6; --anatomy-shade-2:#e1e3dd; --anatomy-shade-3:#e8e9e4;
+  --anatomy-lit-top:#f6f7f3; --anatomy-lit-shade:#e1e3dd;
+  --anatomy-hi:#24302b; --anatomy-mid:#8c938f; --anatomy-lo:#b6bbb7; --anatomy-faint:#d0d3cf; --anatomy-lit:#17221e;
+  --anatomy-halo:#2f4a3d; --anatomy-halo-opacity:.2; --anatomy-dot:#17221e;
+}
+.m-plaster { --anatomy-paper:#eeefeb; --anatomy-top:#f6f6f3; --anatomy-shade-0:#dadbd6; --anatomy-shade-1:#e1e2dd; --anatomy-shade-2:#e8e9e4; --anatomy-shade-3:#efefeb; --anatomy-hi:#4a504c; --anatomy-mid:#a2a7a3; --anatomy-lo:#c4c8c4; --anatomy-faint:#dcdfdb; }
+.m-carpet { --anatomy-paper:#6c9576; --anatomy-top:#77a081; --anatomy-shade-0:#557d5f; --anatomy-shade-1:#5d8567; --anatomy-shade-2:#658d6f; --anatomy-shade-3:#6d9577; --anatomy-lo:#5f8769; --anatomy-faint:#6a9274; }
+.m-felt { --anatomy-paper:#3b634d; --anatomy-top:#4c7a60; --anatomy-shade-0:#2f5541; --anatomy-shade-1:#355c47; --anatomy-shade-2:#3b634d; --anatomy-shade-3:#426b54; --anatomy-hi:#12261b; --anatomy-mid:#2a4a39; --anatomy-lo:#335943; --anatomy-faint:#3b634d; }
+.m-cream { --anatomy-paper:#d6cdb9; --anatomy-top:#e8e1cf; --anatomy-shade-0:#c4bba5; --anatomy-shade-1:#cdc4af; --anatomy-shade-2:#d6cdb9; --anatomy-shade-3:#dfd7c4; --anatomy-hi:#3f3a2f; --anatomy-mid:#8f8775; --anatomy-lo:#b0a892; --anatomy-faint:#cbc3ae; }
+.m-walnut, .m-oak { --anatomy-paper:#eeeeeb; --anatomy-top:#f6f6f3; --anatomy-shade-0:#cfd0cd; --anatomy-shade-1:#d8d9d6; --anatomy-shade-2:#e1e2df; --anatomy-shade-3:#e9e9e6; --anatomy-hi:#343a37; --anatomy-mid:#8d9290; --anatomy-lo:#b4b8b6; --anatomy-faint:#d2d4d2; }
+.m-sofa { --anatomy-paper:#bdaf93; --anatomy-top:#cdbfa3; --anatomy-shade-0:#a99b80; --anatomy-shade-1:#b3a589; --anatomy-shade-2:#bdaf93; --anatomy-shade-3:#c7b99d; --anatomy-hi:#3d3526; --anatomy-mid:#7d715b; --anatomy-lo:#a99b80; }
+.m-black { --anatomy-paper:#2a2e2c; --anatomy-top:#3d4240; --anatomy-shade-0:#1e2120; --anatomy-shade-1:#242826; --anatomy-shade-2:#2a2e2c; --anatomy-shade-3:#313533; --anatomy-hi:#0e100f; --anatomy-mid:#6d7370; --anatomy-lo:#4b504e; --anatomy-faint:#393e3c; }
+.m-alu { --anatomy-paper:#d1d3d2; --anatomy-top:#eceeed; --anatomy-shade-0:#b9bcbb; --anatomy-shade-1:#c5c8c7; --anatomy-shade-2:#d1d3d2; --anatomy-shade-3:#dcdedd; --anatomy-lit-top:#f2f3f3; --anatomy-lit-shade:#d1d3d2; --anatomy-hi:#3e4241; --anatomy-mid:#8c908f; --anatomy-lo:#aeb1b0; --anatomy-faint:#c9cbca; }
+.mt-ball .iso-shade, .mt-ball .iso-top { fill:#4d4236 !important; stroke:#4d4236 !important; }
+.mt-ball .iso-top { fill:#6b5d4d !important; stroke:#6b5d4d !important; }
+.mt-frame { fill:#2f4a3d; } .mt-mat { fill:#f1efe7; } .mt-art-sky { fill:#c3d4cc; } .mt-art-land { fill:#6c9576; }
+.mt-bezel { fill:#c2b9a3; }
+.mt-crt, .mt-glass { fill:#0f2b33; }
+.mt-crt-rule { fill:none; stroke:#4fb3b0; stroke-width:.5; opacity:.7; }
+.mt-crt-bar { fill:#4fb3b0; opacity:.8; }
+.mt-digit { fill:#a6e8e4; font: 400 2.8px "IBM Plex Mono", ui-monospace, monospace; text-anchor: middle; }
+.mt-digit-big { font-size: 3.6px; fill:#e3fbf9; }
+.mt-light-warm, .mt-light-cool { display:none; }
+.mt-bar, .mt-winbar, .mt-dock { fill:#1d4650; }
+.mt-win { fill:#12323a; stroke:#3f8f8c; stroke-width:.5; }
+.mt-rule { fill:none; stroke:#4fb3b0; stroke-width:1; }
+.mt-tile { fill:#13363f; stroke:#4fb3b0; stroke-width:.5; }
+.mt-tile-on { stroke:#c8f5f2; stroke-width:.9; }
+.mt-port { fill:#8c908f; }
+.mt-spin { fill:#a6e8e4; }
+.m-carpet { --anatomy-faint:#618a6b; }
+.mt-panel-light { fill:#ffffff; opacity:.07; filter:blur(5px); }
+.mt-fitting { fill:#f4f2ea; } .mt-fitting-dot { fill:none; stroke:#8c938f; stroke-width:.6; }
+.m-mesh { --anatomy-paper:#3a3f3d; --anatomy-top:#4a504d; --anatomy-shade-0:#2e3331; --anatomy-shade-1:#343937; --anatomy-shade-2:#3a3f3d; --anatomy-shade-3:#414644; }
+/* the Apple Music TV interface */
+.mm-bg { fill:#141718; }
+.mm-art { fill:#c7613f; } .mm-art-2 { fill:#8e3f2c; } .mm-art-3 { fill:#f0c9a8; }
+.mm-text { fill:#eef0ee; } .mm-dim { fill:#5d6563; } .mm-faint { fill:#363c3b; }
+.mm-lyric { fill:#f4f6f4; }
+.mm-t1 { fill:#3f6e68; } .mm-t2 { fill:#7b5a8c; } .mm-t3 { fill:#c7613f; } .mm-t4 { fill:#d4b45a; }
+.mm-focus { fill:none; stroke:#f4f6f4; stroke-width:1.2; }

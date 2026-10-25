@@ -1,0 +1,343 @@
+<title>MacTV Explained</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&family=Noto+Sans+SC:wght@400;500&display=swap">
+<style>
+/*ISO_CSS*/
+/*MATERIALS*/
+/* Layout: a pinned spread. The cutaway fills the page; the words sit in the empty space around it, the headline
+   along the back wall, the body along the floor edge. Calm and plain, after a windowless 1970s office:
+   off-white, green-black ink, one deep teal. */
+:root {
+  --paper: #eaebe6;
+  --ink: #17221e;
+  --ink-2: rgba(23, 34, 30, 0.74);
+  --ink-3: rgba(23, 34, 30, 0.50);
+  --rule: rgba(23, 34, 30, 0.14);
+  --signal: #1f6f66;
+  --sans: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", "Helvetica Neue", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.75 var(--sans); -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+#grain { position: fixed; inset: 0; z-index: 50; pointer-events: none; mix-blend-mode: multiply; opacity: .12; background-size: 220px 220px; }
+html[data-lang="zh"] [lang="en"], html[data-lang="en"] [lang="zh"], html:not([data-lang]) [lang="zh"] { display: none !important; }
+p, h1, h2 { margin: 0; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:focus-visible { outline: 1px solid var(--signal); outline-offset: 4px; }
+.label { font: 400 .72rem/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+
+.story { position: relative; max-width: 1240px; margin: 0 auto; }
+.stage { position: sticky; top: 0; height: 100vh; height: 100dvh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr); }
+.steps { margin-top: -100vh; margin-top: -100dvh; }
+.step { height: 92vh; }
+.step:last-child { height: 100vh; }
+.mast { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: calc(22px + env(safe-area-inset-top, 0px)) 14px; border-bottom: 1px solid var(--rule); }
+.brand { font: 500 .9rem/1 var(--sans); letter-spacing: .32em; }
+.brand i { font-style: normal; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); margin-left: .5em; vertical-align: .15em; }
+.langs { display: flex; gap: 18px; }
+.langs button { font: 400 .76rem/1 var(--mono); letter-spacing: .08em; color: var(--ink-3); }
+.langs button[aria-pressed="true"] { color: var(--ink); }
+
+.spreadwrap { min-height: 0; display: grid; place-items: center; padding-block: 10px; }
+.spread { position: relative; container-type: inline-size; width: min(100%, calc((100dvh - 150px) * 1.6667)); aspect-ratio: 1000 / 600; }
+.spread > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ov { position: absolute; transition: opacity .4s ease; }
+.ov.swap { opacity: 0; }
+.wedge { height: 100%; }
+.tl { left: 0; top: 0; }
+.tl .num { font: 400 1.5cqw/1 var(--mono); letter-spacing: .1em; color: var(--ink); padding-top: 1.2cqw; }
+.tl .chap { font-size: max(10px, .78cqw); margin-top: .6cqw; }
+.tr .wedge { float: left; width: 100%; shape-margin: 1.6cqw; }
+#tr-text { text-align: right; padding-right: 1cqw; }
+.tr h1 { font: 500 2.3cqw/1.35 var(--sans); letter-spacing: .01em; padding-top: 1.2cqw; text-wrap: pretty; }
+html[data-lang="zh"] .tr h1 { letter-spacing: .03em; }
+.bl { left: 0; bottom: 0; }
+.bl .wedge { float: right; shape-margin: 1.8cqw; }
+.bl .body { font-size: max(13px, 1.15cqw); line-height: 1.8; color: var(--ink-2); }
+.bl .note { font: 400 max(10px, .76cqw)/1.6 var(--mono); color: var(--ink-3); margin-top: 1cqw; padding-bottom: .4cqw; }
+.bl .note::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--signal); margin-right: .7em; vertical-align: .1em; }
+.br { right: 0; bottom: 0; text-align: right; width: 16%; }
+.br .big { font: 400 2.6cqw/1 var(--mono); letter-spacing: .02em; color: var(--ink); }
+.br .cap { font: 400 max(10px, .74cqw)/1.5 var(--mono); color: var(--ink-3); margin-top: .5cqw; }
+.pk { fill: var(--signal); stroke: #f4f5f1; stroke-width: .8; }
+.ir { fill: var(--signal); }
+
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 16px 32px; flex-wrap: wrap; padding-block: 14px calc(20px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--rule); }
+.chapters { display: flex; gap: 8px 36px; flex-wrap: wrap; }
+.chapters button { display: flex; align-items: baseline; gap: 10px; color: var(--ink-3); font-size: .86rem; transition: color .3s; }
+.chapters button b { font: 400 .62rem/1 var(--mono); letter-spacing: .1em; }
+.chapters button[aria-selected="true"] { color: var(--ink); }
+.ticks { display: flex; gap: 6px; }
+.ticks button { width: 8px; height: 14px; position: relative; }
+.ticks button::before { content: ""; position: absolute; left: 3px; top: 2px; width: 2px; height: 10px; background: var(--rule); transition: background .3s; }
+.ticks button.past::before { background: var(--ink-3); }
+.ticks button[aria-current="step"]::before { background: var(--signal); }
+
+.article { max-width: 1240px; margin: 0 auto; padding-block: 80px 120px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 28px 64px; }
+.article h2 { font: 500 1.6rem/1.4 var(--sans); letter-spacing: .02em; margin-top: 10px; }
+.article .parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
+.article .parts b { display: block; font: 400 .7rem/1 var(--mono); letter-spacing: .1em; color: var(--signal); margin-bottom: 10px; }
+.article .parts h3 { font: 500 1rem/1.4 var(--sans); margin: 0 0 6px; }
+.article .parts p { font-size: .9rem; color: var(--ink-2); margin: 0; }
+.article .status { grid-column: 2; font-size: .86rem; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 16px; }
+
+@media (max-width: 820px) {
+  .spread { width: 100%; aspect-ratio: auto; container-type: normal; }
+  .spread > svg { position: static; height: auto; display: block; }
+  .ov { position: static; width: auto !important; height: auto !important; }
+  .wedge, .tl, .br, .bl .note { display: none; }
+  .spreadwrap { place-items: start stretch; overflow: hidden; }
+  .tr h1 { font-size: 20px; padding-top: 10px; } #tr-text { text-align: left; padding-right: 0; }
+  .bl { margin-top: 8px; } .bl .body { font-size: 14px; }
+  .article { grid-template-columns: 1fr; } .article .parts { grid-template-columns: 1fr; } .article .status { grid-column: 1; }
+  .ticks { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div id="grain" aria-hidden="true"></div>
+
+<div class="story">
+  <div class="stage">
+    <header class="mast">
+      <div class="brand">MACTV<i aria-hidden="true"></i></div>
+      <div class="langs" role="group" aria-label="Language">
+        <button type="button" id="lang-zh" data-set="zh">中文</button>
+        <button type="button" id="lang-en" data-set="en">EN</button>
+      </div>
+    </header>
+    <div class="spreadwrap">
+      <div class="spread iso" data-theme="light" id="spread">
+        <!--FIG-->
+        <div class="ov tl" id="tl"></div>
+        <div class="ov tr" id="tr"><div class="wedge"></div><div id="tr-text"></div></div>
+        <div class="ov bl" id="bl"><div class="wedge" id="bl-wedge"></div><div id="bl-text"></div></div>
+        <div class="ov br" id="br"></div>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Chapters">
+      <div class="chapters" role="tablist" id="chapters"></div>
+      <div class="ticks" id="ticks"></div>
+    </nav>
+  </div>
+  <div class="steps" id="steps"></div>
+</div>
+
+<section class="article" id="status">
+  <div>
+    <p class="label"><span lang="zh">组成</span><span lang="en">What's included</span></p>
+    <h2><span lang="zh">MacTV 包含什么</span><span lang="en">What MacTV consists of</span></h2>
+  </div>
+  <div class="parts">
+    <div><b>01</b><h3><span lang="zh">Mac 端程序</span><span lang="en">The Mac side</span></h3><p><span lang="zh">建立并维持电视的独立桌面，采集画面和声音、编码发送，接收遥控器操作，并负责自动恢复。</span><span lang="en">Sets up and keeps the TV's separate desktop, captures and encodes its picture and sound, takes the remote's input, and handles recovery.</span></p></div>
+    <div><b>02</b><h3><span lang="zh">电视端接收应用</span><span lang="en">The TV receiver</span></h3><p><span lang="zh">发现并配对 Mac，显示画面、播放声音，把遥控器操作发回 Mac。</span><span lang="en">Finds and pairs with the Mac, shows the picture, plays the sound and sends the remote's presses back.</span></p></div>
+    <div><b>03</b><h3><span lang="zh">网页应用配置</span><span lang="en">Web app configurations</span></h3><p><span lang="zh">每个应用一份配置，描述网址、遥控方式和按键；附带 Apple Music 的电视界面作为示例。</span><span lang="en">One configuration per app, describing its address, remote mode and keys; an Apple Music TV interface is included as an example.</span></p></div>
+    <div><b>04</b><h3><span lang="zh">设备档案与 agent 指南</span><span lang="en">Device profiles and agent guide</span></h3><p><span lang="zh">记录不同设备的差异，并指导编程 agent 完成安装、适配和检查。</span><span lang="en">Records how devices differ, and guides a coding agent through installation, adaptation and checks.</span></p></div>
+  </div>
+  <p class="status"><span lang="zh">MacTV 是开源项目，目前在我们自己的设备上日常使用，其他设备组合尚待验证。安装方法和技术细节见项目仓库。</span><span lang="en">MacTV is open source and in daily use on our own devices; other combinations are not yet verified. Installation and technical details are in the project repository.</span></p>
+</section>
+
+<script>
+(function () {
+  var GEO = /*FIGJSON*/;
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var CH = [
+    { zh: "是什么", en: "What it is" },
+    { zh: "为什么", en: "Why" },
+    { zh: "提供什么", en: "What it provides" }
+  ];
+  // each step: chapter, figure state, headline, body and a line about the picture
+  var STEPS = [
+    { ch: 0, focus: null, screen: "desk", packets: "stream",
+      zh: { t: "把你的 Mac，分一份给电视", b: "MacTV 让客厅里的旧电视用上书房里 Mac 的算力。Mac 为电视单独运行一个桌面，画面和声音传到电视，用电视遥控器操作；书房里的人照常使用 Mac，两边互不打扰。", n: "左边是书房，右边是客厅，两边通过家里的网络连接。" },
+      en: { t: "Share your Mac with your TV", b: "MacTV lets an older TV in the living room use the computing power of the Mac in the study. The Mac runs a separate desktop for the TV, sends its picture and sound over, and the TV's remote controls it. Whoever is in the study keeps using the Mac, and neither side gets in the other's way.", n: "The study is on the left, the living room on the right, connected through the home network." } },
+    { ch: 0, focus: ["monitor", "mac", "chair", "tv", "sofa"], screen: "desk", packets: "stream",
+      zh: { t: "共用一台电脑，而不是二选一", b: "书房的屏幕和客厅的电视各自显示自己的内容，各自有自己的声音和操作。同一台 Mac，同时为两个人工作。", n: "书房的屏幕和电视，显示的是两个不同的桌面。" },
+      en: { t: "One computer, shared rather than switched", b: "The study screen and the living-room TV each show their own content, with their own sound and their own controls. One Mac works for two people at the same time.", n: "The study screen and the TV show two different desktops." } },
+    { ch: 1, focus: ["tv", "sofa", "table", "remote"], screen: "music",
+      zh: { t: "电视可以做的不只是播放视频", b: "坐在沙发上，用遥控器在大屏幕上听音乐、看歌词、翻照片，这些都是很自然的需求。但电视上的应用很少，很多常用服务在电视上没有可安装的版本。", n: "电视上是为遥控器设计的 Apple Music 界面。" },
+      en: { t: "A TV can do more than play video", b: "Sitting on the sofa with the remote, playing music with lyrics or browsing photos on the big screen are natural things to want. But TV apps are few, and many everyday services have no version to install on a TV.", n: "The TV shows an Apple Music interface designed for the remote." } },
+    { ch: 1, focus: ["tv", "cabinet"], screen: "search",
+      zh: { t: "电视自己的算力不够", b: "电视里的处理器往往不快，系统更新也会停止。想为它做一个新应用，需要专门写安卓程序再装进去，大多数人做不到，旧电视也未必跑得动。", n: "客厅里的电视和电视柜。" },
+      en: { t: "The TV's own computing power falls short", b: "The processor in a TV is often slow and its updates eventually stop. Making a new app for it means writing an Android program and installing it, which most people cannot do and an older TV may not run well.", n: "The TV and its cabinet in the living room." } },
+    { ch: 1, focus: ["monitor", "mac", "tv"], screen: "owner",
+      zh: { t: "最直接的办法是投屏", b: "在电脑上把想要的界面做好，再投屏到电视上，看起来就解决了。电脑的算力足够，界面也可以随意修改。", n: "此时电视显示的是书房屏幕的内容，这就是投屏。" },
+      en: { t: "The obvious answer is mirroring", b: "Build the interface you want on the computer and mirror it to the TV, and the problem seems solved. The computer has power to spare and the interface can be changed at will.", n: "Here the TV shows the study screen. This is mirroring." } },
+    { ch: 1, focus: ["monitor", "mac", "chair", "tv"], screen: "owner",
+      zh: { t: "但投屏是把电脑变成了电视", b: "投屏时，两块屏幕显示同一个画面，声音也来自整台电脑，书房里的人没法再做别的事。电脑和电视只能二选一。我们想要的，是把电脑的算力分给电视，而不是让电脑去当电视。", n: "投屏时，书房的屏幕也被电视的内容占用。" },
+      en: { t: "But mirroring turns the computer into the TV", b: "While mirroring, both screens show the same picture and the sound comes from the whole computer, so nobody in the study can do anything else. It is the computer or the TV, not both. What we want is to give the TV a share of the computer, not to make the computer stand in for the TV.", n: "While mirroring, the study screen is taken over by what the TV shows." } },
+    { ch: 2, focus: ["mac", "eth", "tv"], screen: "desk", packets: "stream",
+      zh: { t: "一个专属于电视的桌面", b: "MacTV 在 Mac 上为电视建立一个独立的用户会话，在后台保持运行。它不占用主人的屏幕、键盘和鼠标，主人登录、锁屏或使用其他应用都不影响它。", n: "电视的桌面运行在书房的 Mac 上。" },
+      en: { t: "A desktop that belongs to the TV", b: "MacTV sets up a separate user session on the Mac for the TV and keeps it running in the background. It does not use the owner's screen, keyboard or mouse, and the owner logging in, locking the screen or using other apps does not affect it.", n: "The TV's desktop runs on the Mac in the study." } },
+    { ch: 2, focus: ["mac", "monitor", "tv"], screen: "desk", packets: "stream",
+      zh: { t: "只传这个桌面的画面和声音", b: "MacTV 只采集电视桌面的画面和声音，编码后发送到电视。书房这边的窗口和通知不会出现在电视上，电视的声音也不会从 Mac 的扬声器里放出来。", n: "传往电视的，只有电视桌面的内容。" },
+      en: { t: "Only that desktop's picture and sound", b: "MacTV captures only the TV desktop's picture and sound, encodes them and sends them to the TV. Windows and notifications on the study side never reach the TV, and the TV's sound does not play from the Mac's speakers.", n: "Only the TV desktop's content goes to the TV." } },
+    { ch: 2, focus: ["tv", "cabinet", "remote", "table"], screen: "pin",
+      zh: { t: "电视上的接收应用", b: "电视上装一个 MacTV 接收应用。它在家里的网络中找到 Mac，第一次使用时与 Mac 配对，之后负责显示画面、播放声音，并把遥控器的操作发回 Mac。", n: "电视正在与 Mac 配对。" },
+      en: { t: "A receiver app on the TV", b: "A MacTV receiver app runs on the TV. It finds the Mac on the home network, pairs with it the first time, and from then on shows the picture, plays the sound and sends the remote's presses back to the Mac.", n: "The TV is pairing with the Mac." } },
+    { ch: 2, focus: ["remote", "table", "tv", "eth", "mac"], screen: "music", packets: "input",
+      zh: { t: "用遥控器操作", b: "方向键、确认和返回直接作用在电视桌面上；不适合方向键的页面可以切换成指针；需要输入文字时，电视会打开自己的输入法，文字直接送到页面。", n: "遥控器的操作先到电视，再回到 Mac。" },
+      en: { t: "Operated with the remote", b: "Arrows, OK and Back act directly on the TV desktop; pages that do not suit arrows can switch to a pointer; when text is needed, the TV opens its own keyboard and the text goes straight to the page.", n: "The remote's presses reach the TV, then go back to the Mac." } },
+    { ch: 2, focus: ["tv", "mac", "monitor"], screen: "music",
+      zh: { t: "用网页做电视应用", b: "电视桌面里运行的是网页。每个应用用一份配置描述：网址、遥控方式、按键对应的操作。新增一个应用不需要改动程序，可以让 agent 在 Mac 上编写。我们的第一个例子是为遥控器重新设计的 Apple Music：左边是正在播放的专辑，右边是滚动的歌词，底部的专辑用方向键选择。", n: "电视上是为遥控器设计的 Apple Music 界面。" },
+      en: { t: "TV apps made from web pages", b: "The TV desktop runs web pages. Each app is described by one configuration: its address, how the remote works with it, and what each key does. Adding an app needs no change to the program, and an agent on the Mac can write it. Our first example is Apple Music redesigned for the remote, with the playing album on the left, scrolling lyrics on the right, and albums along the bottom chosen with the arrow keys.", n: "The TV shows an Apple Music interface designed for the remote." } },
+    { ch: 2, focus: ["mac", "eth", "tv"], screen: "lost",
+      zh: { t: "出了问题会自己恢复", b: "连接中断后电视会自动重连；Mac 上的进程退出后会被重新启动；已知的异常状态会被定期检查并修复。无法恢复时，电视会显示是哪一环出了问题。", n: "电视显示连接中断，并正在重试。" },
+      en: { t: "It recovers on its own", b: "After a dropped connection the TV reconnects by itself; processes on the Mac are restarted if they exit; known faulty states are checked for and repaired regularly. When it cannot recover, the TV shows which part has failed.", n: "The TV reports a lost connection and is retrying." } },
+    { ch: 2, focus: null, screen: "desk",
+      zh: { t: "适配不同的电脑和电视", b: "不同型号的电视和 Mac 各有差异。MacTV 把这些差异记录在设备档案里，仓库中附有给 agent 使用的安装和适配指南：把它交给你的编程 agent，它会按步骤完成安装，并在需要时为你的设备做调整。", n: "这些差异以配置记录，不需要修改程序本身。" },
+      en: { t: "Adapts to different computers and TVs", b: "TV and Mac models differ. MacTV records those differences in device profiles, and the repository includes an installation and adaptation guide written for agents: give it to your coding agent and it installs MacTV step by step, adjusting for your devices where needed.", n: "These differences are kept as configuration, not changes to the program." } }
+  ];
+
+  var lang = "en", cur = -1, raf = 0;
+  var navZh = (navigator.language || "").toLowerCase().indexOf("zh") === 0;
+  try { var s = localStorage.getItem("mactv-lang"); lang = (s === "zh" || s === "en") ? s : (navZh ? "zh" : "en"); } catch (e) { lang = navZh ? "zh" : "en"; }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var spread = $("spread"), svg = spread.querySelector("svg"), pk = svg.querySelector('[data-part="packets"]');
+  var F = GEO.frame, W = GEO.size[0], H = GEO.size[1];
+  function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function T(zh, en) { return lang === "zh" ? zh : en; }
+  function pct(v, of) { return (v / of * 100).toFixed(2) + "%"; }
+
+  /* ---------- text frames that follow the drawing's outline ---------- */
+  function placeFrames() {
+    var tr = $("tr"), bl = $("bl");
+    // top right: from the highest corner A to the right end of the back wall B; the room lies below the line A→B
+    tr.style.left = pct(F.A[0], W); tr.style.top = "0"; tr.style.width = pct(W - F.A[0], W); tr.style.height = pct(F.B[1], H);
+    tr.querySelector(".wedge").style.shapeOutside = "polygon(0 " + pct(F.A[1], F.B[1]) + ", " + pct(F.B[0] - F.A[0], W - F.A[0]) + " 100%, 0 100%)";
+    bl.style.width = pct(F.C[0], W);
+    fitBottom();
+  }
+  // bottom left: the text sits on the page's bottom edge and the room lies above the line D→C, so the wedge is
+  // cut to the text block's own height (a few passes, since the cut changes how the text wraps)
+  function fitBottom() {
+    var bl = $("bl"), wedge = $("bl-wedge");
+    if (window.matchMedia("(max-width: 820px)").matches) { bl.style.height = ""; return; }
+    var s = spread.getBoundingClientRect().height / H;
+    var xAt = function (y) { return F.D[0] + (Math.min(y, F.C[1]) - F.D[1]) * (F.C[0] - F.D[0]) / (F.C[1] - F.D[1]); };
+    for (var pass = 0; pass < 3; pass++) {
+      var h = $("bl-text").getBoundingClientRect().height, top = H - h / s;
+      var x0 = Math.max(0, xAt(top)), yC = Math.min(1, Math.max(0, (F.C[1] - top) / (H - top)));
+      wedge.style.width = "100%"; wedge.style.height = h + "px";
+      wedge.style.shapeOutside = "polygon(" + pct(x0, F.C[0]) + " 0, 100% 0, 100% " + (yC * 100).toFixed(2) + "%)";
+      bl.style.height = h + "px";
+    }
+  }
+
+  /* ---------- figure state ---------- */
+  function focus(parts) {
+    svg.querySelectorAll(":scope > [data-part]").forEach(function (g) {
+      var name = g.getAttribute("data-part"), on = !parts || parts.indexOf(name) >= 0;
+      if (on || name === "packets") g.removeAttribute("filter");
+      else g.setAttribute("filter", /^(floor|walls)/.test(name) ? "url(#mute-soft)" : "url(#mute)");
+    });
+  }
+  function screen(name) { svg.querySelectorAll("[data-screen]").forEach(function (g) { g.style.display = g.getAttribute("data-screen") === name ? "" : "none"; }); }
+  function along(pts, t) {
+    var f = t * (pts.length - 1), i = Math.min(pts.length - 2, Math.floor(f)), u = f - i, a = pts[i], b = pts[i + 1];
+    return [a[0] + (b[0] - a[0]) * u, a[1] + (b[1] - a[1]) * u, a.length > 2 ? (u < .5 ? a[2] : b[2]) : 1];
+  }
+  function stopPackets() { cancelAnimationFrame(raf); pk.innerHTML = ""; }
+  function runPackets(mode, dir) {
+    stopPackets();
+    if (!mode) return;
+    var NS = "http://www.w3.org/2000/svg", dots = [];
+    function dot(cls, r) { var c = document.createElementNS(NS, "circle"); c.setAttribute("class", cls); c.setAttribute("r", r); pk.appendChild(c); return c; }
+    var n = mode === "stream" ? 7 : 1;
+    for (var i = 0; i < n; i++) dots.push({ el: dot("pk", mode === "stream" ? 1.7 : 2.3), path: GEO.eth, rev: dir === "in", phase: i / n, delay: mode === "input" ? 0.3 : 0 });
+    if (mode === "input") dots.push({ el: dot("ir", 1.8), path: GEO.ir, rev: false, phase: 0, delay: 0, span: 0.28 });
+    function place(d, t) { var p = along(d.path, d.rev ? 1 - t : t); d.el.setAttribute("cx", p[0].toFixed(1)); d.el.setAttribute("cy", p[1].toFixed(1)); return p[2]; }
+    if (reduce) { dots.forEach(function (d) { d.el.setAttribute("opacity", place(d, 0.62) ? 1 : 0); }); return; }
+    var period = mode === "stream" ? 2400 : 2600, t0 = performance.now();
+    (function tick(now) {
+      dots.forEach(function (d) {
+        var c = ((now - t0) / period + d.phase) % 1, span = d.span || (1 - d.delay - 0.08), t = (c - d.delay) / span;
+        if (t < 0 || t > 1) { d.el.setAttribute("opacity", 0); return; }
+        var e = mode === "stream" ? t : (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+        d.el.setAttribute("opacity", place(d, e) ? (t > .92 ? (1 - t) / .08 : 1) : 0);
+      });
+      raf = requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  /* ---------- words ---------- */
+  function fill(st) {
+    var w = st[lang], c = CH[st.ch];
+    var n = STEPS.indexOf(st) + 1;
+    $("tl").innerHTML = '<div class="num">' + (n < 10 ? "0" : "") + n + ' / ' + STEPS.length + '</div><div class="label chap">0' + (st.ch + 1) + '　' + T(c.zh, c.en) + '</div>';
+    $("tr-text").innerHTML = '<h1>' + esc(w.t) + '</h1>';
+    $("bl-text").innerHTML = '<p class="body">' + esc(w.b) + '</p><p class="note">' + esc(w.n) + '</p>';
+    fitBottom();
+    $("br").innerHTML = w.f ? '<div class="big">' + esc(w.f[0]) + '</div><div class="cap">' + esc(w.f[1]) + '</div>' : "";
+  }
+  var ovs = ["tl", "tr", "bl", "br"];
+  function show(i, force) {
+    i = Math.max(0, Math.min(STEPS.length - 1, i));
+    if (i === cur && !force) return;
+    var prev = cur; cur = i;
+    var st = STEPS[i];
+    focus(st.focus); screen(st.screen);
+    runPackets(st.packets || null, st.packets === "input" ? "in" : "out");
+    document.querySelectorAll("#chapters button").forEach(function (b, k) { b.setAttribute("aria-selected", String(k === st.ch)); });
+    document.querySelectorAll("#ticks button").forEach(function (b, k) { b.classList.toggle("past", k < i); if (k === i) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current"); });
+    if (force || reduce || prev < 0) { fill(st); return; }
+    ovs.forEach(function (id) { $(id).classList.add("swap"); });
+    clearTimeout(show.t);
+    show.t = setTimeout(function () { fill(STEPS[cur]); ovs.forEach(function (id) { $(id).classList.remove("swap"); }); }, 200);
+  }
+
+  /* ---------- scroll ---------- */
+  $("steps").innerHTML = STEPS.map(function (_, i) { return '<div class="step" id="s' + i + '"></div>'; }).join("");
+  function stepTop(i) { return $("s" + i).getBoundingClientRect().top + window.scrollY; }
+  function onScroll() {
+    var y = window.scrollY + window.innerHeight * 0.5, best = 0;
+    for (var i = 0; i < STEPS.length; i++) if (stepTop(i) <= y) best = i;
+    show(best);
+  }
+  window.addEventListener("scroll", function () { cancelAnimationFrame(onScroll.r); onScroll.r = requestAnimationFrame(onScroll); }, { passive: true });
+  window.addEventListener("resize", function () { fitBottom(); onScroll(); });
+  function goStep(i) { window.scrollTo({ top: stepTop(i) - window.innerHeight * 0.3, behavior: reduce ? "auto" : "smooth" }); }
+
+  function renderNav() {
+    $("chapters").innerHTML = CH.map(function (c, k) { return '<button type="button" role="tab" id="ch-' + k + '" aria-selected="false"><b>0' + (k + 1) + '</b>' + T(c.zh, c.en) + '</button>'; }).join("");
+    CH.forEach(function (_, k) { $("ch-" + k).onclick = function () { for (var i = 0; i < STEPS.length; i++) if (STEPS[i].ch === k) { goStep(i); return; } }; });
+    $("ticks").innerHTML = STEPS.map(function (st, i) { return '<button type="button" data-ch="' + st.ch + '" aria-label="' + (i + 1) + '"></button>'; }).join("");
+    document.querySelectorAll("#ticks button").forEach(function (b, i) { b.onclick = function () { goStep(i); }; });
+  }
+  function setLang(l) {
+    lang = l;
+    document.documentElement.setAttribute("data-lang", l);
+    document.documentElement.setAttribute("lang", l === "zh" ? "zh-CN" : "en");
+    $("lang-zh").setAttribute("aria-pressed", String(l === "zh"));
+    $("lang-en").setAttribute("aria-pressed", String(l === "en"));
+    try { localStorage.setItem("mactv-lang", l); } catch (e) {}
+    renderNav(); show(cur < 0 ? 0 : cur, true);
+  }
+  document.querySelectorAll(".langs button").forEach(function (b) { b.addEventListener("click", function () { setLang(b.getAttribute("data-set")); }); });
+  placeFrames();
+  setLang(lang);
+  onScroll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitBottom);
+  
+  try {
+    var c = document.createElement("canvas"), N = 220; c.width = c.height = N;
+    var g = c.getContext("2d"), im = g.createImageData(N, N), d = im.data;
+    for (var i = 0; i < N * N; i++) {
+      var u = Math.random() || 1e-6, v = Math.random();
+      var n = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+      d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = Math.max(0, Math.min(255, 128 + n * 34)); d[i * 4 + 3] = 255;
+    }
+    g.putImageData(im, 0, 0);
+    $("grain").style.backgroundImage = "url(" + c.toDataURL() + ")";
+  } catch (e) {}
+})();
+</script>

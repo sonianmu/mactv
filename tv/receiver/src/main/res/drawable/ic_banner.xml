@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A screen with a stand, white on a dark gradient: the launcher banner and icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="180dp" android:viewportWidth="320" android:viewportHeight="180">
+    <path android:pathData="M0,0h320v180h-320z" android:fillColor="#1C1C1E" />
+    <path android:pathData="M110,48h100a8,8 0 0 1 8,8v58a8,8 0 0 1 -8,8h-100a8,8 0 0 1 -8,-8v-58a8,8 0 0 1 8,-8z"
+        android:strokeColor="#FFFFFF" android:strokeWidth="7" android:fillColor="#00000000" />
+    <path android:pathData="M136,138h48" android:strokeColor="#FFFFFF" android:strokeWidth="7" android:strokeLineCap="round" />
+    <path android:pathData="M148,76l26,9 -26,9z" android:fillColor="#FFFFFF" />
+</vector>

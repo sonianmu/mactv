@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>tv.mactv.host</string>
+<key>CFBundleName</key><string>MacTV Host</string>
+<key>CFBundleDisplayName</key><string>MacTV Host</string>
+<key>CFBundleExecutable</key><string>MacTVHost</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleShortVersionString</key><string>1.0.0</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>LSMinimumSystemVersion</key><string>14.2</string>
+<key>LSUIElement</key><true/>
+<key>NSAudioCaptureUsageDescription</key><string>MacTV sends this session's sound to your TV.</string>
+<key>NSScreenCaptureUsageDescription</key><string>MacTV sends this session's screen to your TV.</string>
+</dict></plist>

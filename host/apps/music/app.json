@@ -1,0 +1,14 @@
+{
+  "title": "Apple Music",
+  "url": "https://music.apple.com/",
+  "profile": "MacTV Music",
+  "scale": 2,
+  "debugPort": 9223,
+  "remote": true,
+  "tvui": "tvui.js",
+  "keys": {"next": "n", "previous": "p"},
+  "commands": {"play": "__tvuiPlay"},
+  "text": "__tvuiText",
+  "service": "feed.py",
+  "settings": {"feedPort": 8812, "language": "en-US"}
+}

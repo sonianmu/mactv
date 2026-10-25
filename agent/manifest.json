@@ -1,0 +1,68 @@
+{
+  "project": "MacTV",
+  "purpose": "Lend a Mac's spare power to a weak screen: the TV gets its own isolated macOS desktop, streamed to it and driven by its remote. Not mirroring.",
+  "readOrder": [
+    "AGENTS.md",
+    "docs/concepts.md",
+    "agent/playbook.md",
+    "agent/adapt.md",
+    "profiles/README.md",
+    "docs/protocol.md",
+    "docs/receiver-contract.md"
+  ],
+  "hardRules": [
+    {"id": "no-0x1d", "rule": "Never send Screen Sharing's SetDisplayConfiguration (0x1d) or write code that could.", "why": "corrupts the owner's WindowServer until a reboot", "check": "log show --last 10m --predicate 'eventMessage CONTAINS \"created virtual display\"' must be empty"},
+    {"id": "no-kill-screensharing", "rule": "Never kill screensharingd or ScreensharingAgent.", "why": "leaves Screen Sharing broken until a reboot"},
+    {"id": "ask-first", "rule": "Ask the person before: creating a user, enabling Screen Sharing, any sudo, installing/uninstalling on the TV, rebooting anything, changing TV settings, signing in to accounts.", "why": "their machines, their accounts"},
+    {"id": "someone-watching", "rule": "Before touching the TV, run adb shell dumpsys activity activities | grep mResumedActivity; if a video app is in front, ask.", "why": "someone may be watching"},
+    {"id": "secrets", "rule": "Never write passwords, tokens, IP or MAC addresses, serial numbers or account names into files, commits, issues or reports.", "why": "the repository and reports are public"},
+    {"id": "reversible", "rule": "Prefer what mactv uninstall and the TV's own settings can undo; on the TV disable, don't uninstall.", "why": "a way back"},
+    {"id": "verify", "rule": "A step is done when its check passes, not when its command returned.", "why": "components misreport their own state"}
+  ],
+  "layers": [
+    {"n": 1, "name": "desk", "question": "Where does the TV's desktop live without taking the owner's?", "code": ["host/holder/holder.py", "host/holder/guard.sh"], "docs": "docs/session.md", "macSpecific": true},
+    {"n": 2, "name": "eyes", "question": "How do we see and hear only that desktop?", "code": ["host/Sources/MacTVHost/Video.swift", "host/Sources/MacTVHost/Audio.swift"], "docs": "docs/capture-and-audio.md", "macSpecific": true},
+    {"n": 3, "name": "link", "question": "How does the TV find the Mac, prove it is welcome, and get a stream it can decode?", "code": ["host/Sources/MacTVHost/Protocol.swift", "host/Sources/MacTVHost/Transport.swift", "host/Sources/MacTVHost/Pairing.swift", "tv/receiver/src/main/java/tv/mactv/receiver/Link.java", "tests/reference_client.py"], "docs": "docs/protocol.md", "macSpecific": false},
+    {"n": 4, "name": "hands", "question": "How does the remote act on the desktop?", "code": ["host/Sources/MacTVHost/Control.swift"], "docs": "docs/protocol.md#commands-tv--host", "macSpecific": false},
+    {"n": 5, "name": "apps", "question": "What is worth lending?", "code": ["host/apps/"], "docs": "docs/web-apps.md", "macSpecific": false},
+    {"n": 6, "name": "care", "question": "How does it stay up without anyone looking after it?", "code": ["host/bin/mactv", "host/Sources/MacTVHost/Services.swift"], "docs": "docs/architecture.md", "macSpecific": false}
+  ],
+  "extensionPoints": [
+    {"change": "ports, bitrates, picture limits, session user, which apps", "where": "/Users/Shared/MacTV/config.json (template host/config/config.example.json)"},
+    {"change": "a new web app", "where": "host/apps/<name>/app.json (template host/apps/_template)"},
+    {"change": "a device quirk", "where": "profiles/tv/<id>.json or profiles/mac/<id>.json, plus docs/tv-notes.md"},
+    {"change": "a new kind of display", "where": "a new receiver implementing docs/receiver-contract.md"},
+    {"change": "a general bug", "where": "the engine, with a test in tests/test_protocol.py"}
+  ],
+  "commands": {
+    "build": "(cd host && swift build -c release)",
+    "test": "python3 tests/test_protocol.py",
+    "preflight": "host/bin/mactv preflight",
+    "install": "host/bin/mactv install",
+    "doctor": "host/bin/mactv doctor",
+    "status": "host/bin/mactv status",
+    "pair": "host/bin/mactv pair",
+    "logs": "host/bin/mactv logs host|holder|guard|<app>",
+    "buildReceiver": "(cd tv && ./gradlew assembleRelease)"
+  },
+  "ports": {
+    "8810": "TV ↔ host: discovery, pairing, stream, commands (LAN)",
+    "8811": "host → holder input relay (loopback)",
+    "8812": "music app's data service (LAN, token required)",
+    "8813": "admin for tools on the Mac (loopback)",
+    "5900": "Screen Sharing (holder keeps the session)",
+    "9223+": "Chrome DevTools per app (loopback)"
+  },
+  "phases": [
+    {"id": 1, "name": "survey", "gate": "mactv preflight has no ✗ the person won't fix; macOS ≥ 14.2; the TV runs Android"},
+    {"id": 2, "name": "mac prerequisites", "gate": "mactv preflight all ✓"},
+    {"id": 3, "name": "install", "gate": "mactv logs holder shows 'session open'"},
+    {"id": 4, "name": "inside the session", "gate": "mactv status → picture.capturing true"},
+    {"id": 5, "name": "tv", "gate": "mactv status → receiver.connected true with the expected codec and size"},
+    {"id": 6, "name": "verify end to end", "gate": "every row of the check table in agent/playbook.md recorded"},
+    {"id": 7, "name": "adapt", "gate": "every difference explained and fixed in its layer"},
+    {"id": 8, "name": "hand back", "gate": "summary + device report; privacy grep clean"}
+  ],
+  "privacyGrep": "grep -rnE '([0-9]{1,3}\\.){3}[0-9]{1,3}|([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}' examples/ docs/ profiles/ must show only documentation placeholders",
+  "notSolved": ["deciding how much of the Mac to lend (compute allocation)", "more than one TV at a time", "stream encryption", "hosts other than macOS"]
+}

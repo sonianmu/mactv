@@ -1,0 +1,21 @@
+{
+  "name": "Living room Mac",
+  "sessionUser": "mactv",
+  "port": 8810,
+  "adminPort": 8813,
+  "holderPort": 8811,
+  "requirePairing": true,
+  "allowLegacy": false,
+  "maxWidth": 3840,
+  "maxHeight": 2160,
+  "fps": 60,
+  "bitrate4KWired": 40000000,
+  "bitrate1080Wired": 15000000,
+  "bitrateWifi": 10000000,
+  "minBitrate": 3000000,
+  "wifiMax1080": true,
+  "hiddenApps": ["com.apple.notificationcenterui"],
+  "runtimeDir": "/Users/Shared/MacTV",
+  "enabledApps": ["music", "youtube"],
+  "appSettings": {"music": {"language": "en-US"}}
+}

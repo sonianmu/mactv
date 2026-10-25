@@ -1,0 +1,56 @@
+{
+  "id": "macos-apple-silicon",
+  "kind": "mac",
+  "match": {"arch": "arm64", "macos": ">=14.2"},
+  "facts": {
+    "seen": "Mac mini (Apple silicon), macOS 27",
+    "needs": "macOS 14.2+ for process audio taps; hardware HEVC encoding; Google Chrome; Xcode command line tools"
+  },
+  "quirks": [
+    {
+      "id": "screen-sharing-enabled-by-launchctl",
+      "symptom": "holder says 'session open' but the host captures black or reports no display",
+      "cause": "Screen Sharing turned on with launchctl/kickstart lacks the capture permission it gets from System Settings",
+      "check": "log show --last 5m --predicate 'process == \"screensharingd\"' | grep -i capture",
+      "fix": "the person toggles Screen Sharing off and on in System Settings → General → Sharing",
+      "changesDevice": true,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "virtual-display-corruption",
+      "symptom": "the owner's screen ghosts, doubles text or goes black",
+      "cause": "something sent Screen Sharing's SetDisplayConfiguration (0x1d): a system-wide virtual display",
+      "check": "log show --last 30m --predicate 'eventMessage CONTAINS \"created virtual display\"'",
+      "fix": "reboot the Mac; find and remove what sent it. The guard stops the holder if it happens.",
+      "changesDevice": true,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "killed-screensharing",
+      "symptom": "viewers reconnect in a loop, 'display index not found'",
+      "cause": "screensharingd or ScreensharingAgent was killed",
+      "check": "log show --last 10m --predicate 'process == \"screensharingd\"'",
+      "fix": "reboot; never kill those processes",
+      "changesDevice": true,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "notification-center-unstoppable",
+      "symptom": "notification banners from the session reach the TV",
+      "cause": "Notification Center is protected (SIP) and restarts; it can't be quit",
+      "check": "mactv status → picture.hiddenPids",
+      "fix": "keep com.apple.notificationcenterui in hiddenApps (default); mactv filter on",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "vpn-hides-lan",
+      "symptom": "the TV can't find the Mac after a VPN connects",
+      "cause": "a full-tunnel VPN takes the LAN routes",
+      "check": "mactv doctor (network line)",
+      "fix": "split-tunnel the LAN or disconnect the VPN",
+      "changesDevice": false,
+      "verified": "untested beyond the live setup's logs"
+    }
+  ]
+}

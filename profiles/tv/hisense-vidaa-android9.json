@@ -1,0 +1,67 @@
+{
+  "id": "hisense-vidaa-android9",
+  "kind": "tv",
+  "match": {"brand": "(?i)hisense", "android": "^9"},
+  "facts": {
+    "seen": "Hisense 50H55E (China market), VIDAA 6 on Android 9, MStar/MTK SoC, 1.2 GB RAM",
+    "decoders": "HEVC and H.264 in hardware, one at a time, up to 3840x2160",
+    "ui": "1920x1080 UI layer, 4K panel",
+    "network": "Ethernet ~750 Mbps measured to the Mac; 2.4 GHz Wi-Fi ~19 Mbps (too slow for 4K)"
+  },
+  "quirks": [
+    {
+      "id": "decoder-held-by-last-source",
+      "symptom": "after a reboot every video app fails, including the receiver ('decoder busy')",
+      "cause": "the middleware (hstvos) reopens the last input source (tuner or HDMI) at boot and never releases the only decoder",
+      "check": "adb shell getprop persist.sys.last_source   (anything other than 2562)",
+      "fix": "adb shell setprop persist.sys.last_source 2562, then reboot (ask first). Choosing TV or HDMI in the Source panel brings it back.",
+      "changesDevice": true,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "decoder-held-for-home-package",
+      "symptom": "decoding fails while the stock home app's package is in front",
+      "cause": "middleware keeps the decoder for that package",
+      "check": "which package is resumed when it fails",
+      "fix": "the receiver runs in its own package (tv.mactv.receiver); keep it that way",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "vendor-app-manager",
+      "symptom": "a third-party boot receiver never runs; pm disable-user of a system app comes back after reboot",
+      "cause": "com.hisense.vidaaassistant disables components by name; part of the system restores packages at boot",
+      "check": "adb shell pm list packages -d; reboot and compare",
+      "fix": "don't rely on boot receivers; re-check disabled packages after a reboot",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "source-panel-package",
+      "symptom": "the input source panel disappears",
+      "cause": "com.jamdeo.tv.vod hosts it",
+      "check": "adb shell pm list packages -d | grep jamdeo",
+      "fix": "never disable com.jamdeo.tv.vod; re-enable it if it was",
+      "changesDevice": true,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "volume-from-shell",
+      "symptom": "volume set from the shell snaps back",
+      "cause": "the TV service overrides it",
+      "check": "adb shell media volume --stream 3 --get",
+      "fix": "adb shell media volume --stream 3 --set N",
+      "changesDevice": true,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "no-apple-music-app",
+      "symptom": "Apple's Android TV app does not play",
+      "cause": "Widevine L3 and an old WebView (66)",
+      "check": "adb shell dumpsys package com.google.android.webview | grep versionName",
+      "fix": "play Apple content through the Mac (apps/music)",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "generic-android-tv",
+  "kind": "tv",
+  "match": {},
+  "facts": {
+    "minimum": "Android 7 (API 24), a hardware H.264 decoder; HEVC for 4K",
+    "notes": "Applies to every Android TV. Brand profiles add to it."
+  },
+  "quirks": [
+    {
+      "id": "decoder-busy",
+      "symptom": "receiver says 'decoder busy'; other video apps also fail",
+      "cause": "TVs often have a single hardware decoder; something else (live TV, a vendor service) holds it",
+      "check": "adb shell dumpsys media.player | head -50; adb shell dumpsys activity activities | grep mResumedActivity",
+      "fix": "close the app holding it; see the brand profile for middleware that keeps it",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "ui-layer-1080p",
+      "symptom": "a 4K stream looks soft",
+      "cause": "the UI layer is 1080p on many TVs; only the video plane is 4K",
+      "check": "adb shell wm size",
+      "fix": "none needed: the receiver renders on a SurfaceView fixed at the stream size",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "no-logcat",
+      "symptom": "the receiver's log lines are missing from logcat",
+      "cause": "some vendors filter third-party logs",
+      "check": "adb shell cat /sdcard/Android/data/tv.mactv.receiver/files/mactv-debug.txt",
+      "fix": "read the receiver's debug file instead",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "screenshot-cut",
+      "symptom": "adb screencap -p output truncated or black",
+      "cause": "slow TVs; the video plane is not always in screenshots",
+      "check": "adb shell screencap /data/local/tmp/f.raw && adb pull /data/local/tmp/f.raw",
+      "fix": "use the raw format and convert on the computer; retry for the video plane",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "install-interrupts",
+      "symptom": "the stock home app jumps to the front during adb install",
+      "cause": "vendor launchers relaunch after package changes",
+      "check": "adb shell dumpsys activity activities | grep mResumedActivity (before installing)",
+      "fix": "install only when nobody is watching; ask first",
+      "changesDevice": true,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "deep-link-without-clear-top",
+      "symptom": "am start brings the receiver forward but the extras (app, play) do nothing",
+      "cause": "without NEW_TASK|CLEAR_TOP the existing task is only brought forward",
+      "check": "the am start output says 'its current task has been brought to the front'",
+      "fix": "am start -f 0x14000000 -n tv.mactv.receiver/.ReceiverActivity --es app <name>",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    },
+    {
+      "id": "adb-no-route-macos",
+      "symptom": "adb connect: No route to host, from the Mac",
+      "cause": "macOS Local Network privacy blocks the terminal",
+      "check": "System Settings → Privacy & Security → Local Network",
+      "fix": "allow the terminal app there",
+      "changesDevice": false,
+      "verified": "examples/devices/mac-mini-m-series+hisense-50h55e.md"
+    }
+  ]
+}

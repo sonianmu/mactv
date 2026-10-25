@@ -1,0 +1,8 @@
+{
+  "title": "Shown in the TV's menu",
+  "url": "https://example.com/",
+  "profile": "MacTV Example",
+  "scale": 2,
+  "debugPort": 9230,
+  "remote": false
+}

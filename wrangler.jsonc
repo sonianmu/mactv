@@ -1,0 +1,7 @@
+{
+  // The MacTV web page on Cloudflare Pages (free plan, *.pages.dev).
+  // Build the page first (see site/README.md), then: npx wrangler pages deploy
+  "name": "mactv",
+  "pages_build_output_dir": "site/public",
+  "compatibility_date": "2026-10-19"
+}

@@ -1,0 +1,280 @@
+#!/bin/bash
+# mactv: install, check and run MacTV on this Mac. Run as the Mac's owner (an administrator), never as the
+# session user. Commands that change the session user's side ask for sudo.
+#
+#   mactv preflight            what this Mac has and lacks (read-only)
+#   mactv install              build, copy the runtime, store the session password, install launch agents
+#   mactv uninstall            remove the launch agents (keeps the runtime, the config and the session user)
+#   mactv start | stop         the owner's agents (holder, guard); the host follows the session
+#   mactv restart [host|holder]
+#   mactv status               the host's own report (JSON)
+#   mactv doctor               walks the whole chain and says which link is broken (read-only)
+#   mactv pair [seconds]       shows a PIN for pairing a TV (default 120 s)
+#   mactv devices | unpair <id|all>
+#   mactv logs [host|holder|guard|<app>] [-f]   e.g. logs music (an app's service)
+#   mactv filter on|off        hide/show Notification Center in the picture (to check hiding works)
+#
+# Environment: MACTV_RUNTIME (default /Users/Shared/MacTV), MACTV_CONFIG (default $MACTV_RUNTIME/config.json).
+set -uo pipefail
+SRC="$(cd "$(dirname "$0")/.." && pwd)"          # the repository's host/ directory
+RUNTIME="${MACTV_RUNTIME:-/Users/Shared/MacTV}"
+CONFIG="${MACTV_CONFIG:-$RUNTIME/config.json}"
+ME=$(id -u)
+
+conf() {  # conf <key> <default>: a top-level value from the config
+  python3 - "$CONFIG" "$1" "$2" <<'PY' 2>/dev/null || echo "$2"
+import json, sys
+try:
+    v = json.load(open(sys.argv[1])).get(sys.argv[2], sys.argv[3])
+except Exception:
+    v = sys.argv[3]
+print(str(v).lower() if isinstance(v, bool) else v)
+PY
+}
+SESSION_USER=$(conf sessionUser mactv)
+PORT=$(conf port 8810)
+ADMIN=$(conf adminPort 8813)
+
+ok()   { printf "  \033[32m✓\033[0m %s\n" "$1"; }
+bad()  { printf "  \033[31m✗\033[0m %s\n      → %s\n" "$1" "$2"; FAIL=1; }
+note() { printf "  \033[33m•\033[0m %s\n" "$1"; }
+listening() { netstat -an -p tcp 2>/dev/null | grep -q "\.$1 .*LISTEN"; }
+admin() {  # admin "<command>": one line to the host's loopback admin port, JSON back
+  python3 - "$ADMIN" "$1" <<'PY'
+import socket, sys
+try:
+    s = socket.create_connection(("127.0.0.1", int(sys.argv[1])), timeout=10)
+except OSError:
+    sys.exit("the host is not running (no admin port)")
+s.sendall((sys.argv[2] + "\n").encode())
+buf = b""
+while True:
+    d = s.recv(65536)
+    if not d:
+        break
+    buf += d
+print(buf.decode().strip())
+PY
+}
+session_uid() { id -u "$SESSION_USER" 2>/dev/null; }
+lan_ip() {
+  for i in 0 1 2 3 4 5 6 7 8 9; do
+    a=$(ipconfig getifaddr en$i 2>/dev/null)
+    case "$a" in 10.*|192.168.*|172.1[6-9].*|172.2[0-9].*|172.3[01].*) echo "$a"; return;; esac
+  done
+}
+
+preflight() {
+  echo "This Mac"
+  v=$(sw_vers -productVersion); major=${v%%.*}; minor=$(echo "$v" | cut -d. -f2)
+  if [ "$major" -gt 14 ] || { [ "$major" -eq 14 ] && [ "${minor:-0}" -ge 2 ]; }; then ok "macOS $v (14.2+ needed for audio taps)"; else bad "macOS $v" "MacTV needs macOS 14.2 or later"; fi
+  [ "$(uname -m)" = arm64 ] && ok "Apple silicon" || note "Intel Mac: should work, untested (hardware HEVC encoding needed)"
+  command -v swift >/dev/null && ok "Swift toolchain" || bad "no Swift toolchain" "xcode-select --install"
+  python3 -c 'import sys; assert sys.version_info >= (3, 8)' 2>/dev/null && ok "python3" || bad "no python3" "xcode-select --install"
+  command -v openssl >/dev/null && ok "openssl" || bad "no openssl" "part of macOS; check PATH"
+  [ -d "/Applications/Google Chrome.app" ] && ok "Google Chrome" || bad "no Google Chrome" "the web apps run in Chrome: install it in /Applications"
+  [ -n "$(lan_ip)" ] && ok "on a home network" || bad "no private network address" "connect to the home network (Ethernet is best)"
+  echo "Session user"
+  if id "$SESSION_USER" >/dev/null 2>&1; then
+    ok "user $SESSION_USER exists"
+    dseditgroup -o checkmember -m "$SESSION_USER" com.apple.access_screensharing >/dev/null 2>&1 && ok "$SESSION_USER may use Screen Sharing" \
+      || bad "$SESSION_USER is not allowed in Screen Sharing" "System Settings → General → Sharing → Screen Sharing (i) → allow $SESSION_USER"
+  else
+    bad "no user $SESSION_USER" "create a Standard user for the TV (docs/setup-mac.md, step 2)"
+  fi
+  listening 5900 && ok "Screen Sharing is on" || bad "Screen Sharing is off" "System Settings → General → Sharing → Screen Sharing (use the switch there: enabling it any other way leaves it without capture permission)"
+  security find-generic-password -s "MacTV session" -a "$SESSION_USER" >/dev/null 2>&1 && ok "session password in your keychain" || note "session password not stored yet (mactv install asks for it)"
+}
+
+write_plist() {  # write_plist <file> <label> <args...>
+  local file=$1 label=$2; shift 2
+  {
+    echo '<?xml version="1.0" encoding="UTF-8"?>'
+    echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'
+    echo '<plist version="1.0"><dict>'
+    echo "<key>Label</key><string>$label</string>"
+    echo '<key>ProgramArguments</key><array>'
+    for a in "$@"; do echo "<string>$a</string>"; done
+    echo '</array>'
+    echo '<key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>15</integer>'
+    [ -n "${PLIST_LOG:-}" ] && echo "<key>StandardOutPath</key><string>$PLIST_LOG</string><key>StandardErrorPath</key><string>$PLIST_LOG</string>"
+    [ -n "${PLIST_AQUA:-}" ] && echo '<key>LimitLoadToSessionType</key><string>Aqua</string>'
+    echo '</dict></plist>'
+  } > "$file"
+}
+
+install() {
+  preflight || true
+  [ -n "${FAIL:-}" ] && { echo; echo "Fix the ✗ items above first."; exit 1; }
+  echo "Building"
+  "$SRC/scripts/build.sh" || exit 1
+  echo "Runtime in $RUNTIME"
+  mkdir -p "$RUNTIME/bin" "$RUNTIME/tools" "$RUNTIME/apps"
+  rsync -a --delete "$SRC/.build/MacTVHost.app/" "$RUNTIME/MacTVHost.app/"
+  cp "$SRC/holder/holder.py" "$SRC/holder/guard.sh" "$RUNTIME/bin/"
+  cp "$SRC/tools/cdp.py" "$RUNTIME/tools/"
+  rsync -a --exclude README.md "$SRC/apps/" "$RUNTIME/apps/"
+  [ -f "$CONFIG" ] || cp "$SRC/config/config.example.json" "$CONFIG"
+  chmod -R a+rX "$RUNTIME"
+  # The session user writes its logs here too.
+  chmod a+w "$RUNTIME"
+  if ! security find-generic-password -s "MacTV session" -a "$SESSION_USER" >/dev/null 2>&1; then
+    read -rsp "Password of $SESSION_USER (stored only in your login keychain): " PW; echo
+    security add-generic-password -U -s "MacTV session" -a "$SESSION_USER" -w "$PW" || exit 1
+    unset PW
+  fi
+  echo "Launch agents"
+  LA=~/Library/LaunchAgents; mkdir -p "$LA"
+  PLIST_LOG="$RUNTIME/holder.log" write_plist "$LA/tv.mactv.holder.plist" tv.mactv.holder /usr/bin/python3 -u "$RUNTIME/bin/holder.py"
+  write_plist "$LA/tv.mactv.guard.plist" tv.mactv.guard /bin/bash "$RUNTIME/bin/guard.sh"
+  for n in guard holder; do
+    launchctl bootout "gui/$ME/tv.mactv.$n" 2>/dev/null
+    launchctl bootstrap "gui/$ME" "$LA/tv.mactv.$n.plist" && ok "tv.mactv.$n (you)"
+  done
+  # The host belongs to the session user and starts with its session. Through `open -W`, so it is launched
+  # exactly like an app opened by hand and its Screen Recording permission is the app's.
+  local SU; SU=$(session_uid)
+  local T; T=$(mktemp)
+  PLIST_AQUA=1 write_plist "$T" tv.mactv.host /usr/bin/open -W -a "$RUNTIME/MacTVHost.app"
+  echo "Installing the host for $SESSION_USER (asks for your password: sudo)"
+  sudo mkdir -p "/Users/$SESSION_USER/Library/LaunchAgents"
+  sudo cp "$T" "/Users/$SESSION_USER/Library/LaunchAgents/tv.mactv.host.plist"
+  sudo chown -R "$SESSION_USER:staff" "/Users/$SESSION_USER/Library/LaunchAgents"
+  rm -f "$T"
+  sudo pkill -u "$SESSION_USER" -x MacTVHost 2>/dev/null
+  if sudo launchctl print "gui/$SU" >/dev/null 2>&1; then
+    sudo launchctl bootout "gui/$SU/tv.mactv.host" 2>/dev/null
+    sudo launchctl bootstrap "gui/$SU" "/Users/$SESSION_USER/Library/LaunchAgents/tv.mactv.host.plist" && ok "tv.mactv.host ($SESSION_USER)"
+  else
+    note "$SESSION_USER's session is not up yet; the host starts with it once the holder connects"
+  fi
+  echo
+  echo "Next: first-time setup inside the session (docs/setup-mac.md, step 5), then: mactv doctor"
+}
+
+uninstall() {
+  for n in holder guard; do
+    launchctl bootout "gui/$ME/tv.mactv.$n" 2>/dev/null
+    rm -f ~/Library/LaunchAgents/tv.mactv.$n.plist
+  done
+  local SU; SU=$(session_uid)
+  sudo launchctl bootout "gui/$SU/tv.mactv.host" 2>/dev/null
+  sudo rm -f "/Users/$SESSION_USER/Library/LaunchAgents/tv.mactv.host.plist"
+  sudo pkill -u "$SESSION_USER" -x MacTVHost 2>/dev/null
+  echo "Launch agents removed. Left in place: $RUNTIME, the session user, the keychain item \"MacTV session\"."
+}
+
+start() {
+  for n in guard holder; do
+    launchctl print "gui/$ME/tv.mactv.$n" >/dev/null 2>&1 || launchctl bootstrap "gui/$ME" ~/Library/LaunchAgents/tv.mactv.$n.plist
+    launchctl kickstart "gui/$ME/tv.mactv.$n"
+  done
+  echo "started; check with: mactv doctor"
+}
+
+stop() {
+  launchctl bootout "gui/$ME/tv.mactv.holder" 2>/dev/null
+  launchctl bootout "gui/$ME/tv.mactv.guard" 2>/dev/null
+  pkill -f "MacTV/bin/holder.py"; pkill -f "MacTV/bin/guard.sh"
+  echo "stopped (the host idles in the session until the holder is back)"
+}
+
+restart() {
+  case "${1:-host}" in
+    # The host runs as the session user, which the owner can't signal: it is asked to exit and launchd
+    # starts it again (picking up a new build).
+    host) admin restart >/dev/null && echo "host restarting" ;;
+    holder) launchctl kickstart -k "gui/$ME/tv.mactv.holder" && echo "holder restarted" ;;
+    *) echo "restart host|holder"; exit 1 ;;
+  esac
+}
+
+pair() {
+  local secs=${1:-120}
+  local pin; pin=$(admin "pair $secs" | python3 -c 'import json,sys; print(json.load(sys.stdin)["pin"])') || exit 1
+  echo
+  echo "   Enter this PIN on the TV:   ${pin:0:3} ${pin:3:3}"
+  echo
+  echo "   (valid for $secs seconds, once)"
+}
+
+doctor() {
+  echo "Network"
+  local ip; ip=$(lan_ip)
+  [ -n "$ip" ] && ok "Mac on a home network" || bad "Mac has no private network address" "connect it to the home network (a full-tunnel VPN or a phone hotspot hides the TV)"
+  echo "Screen Sharing and the session"
+  listening 5900 && ok "Screen Sharing on" || bad "Screen Sharing off" "System Settings → General → Sharing → Screen Sharing"
+  for n in guard holder; do
+    launchctl print "gui/$ME/tv.mactv.$n" >/dev/null 2>&1 && ok "$n managed by launchd" || bad "$n not running under launchd" "mactv install (or mactv start after the guard tripped)"
+  done
+  if grep -q TRIPPED "$RUNTIME/guard.log" 2>/dev/null && ! pgrep -f "MacTV/bin/holder.py" >/dev/null; then
+    bad "the guard tripped: $(grep TRIPPED "$RUNTIME/guard.log" | tail -1 | cut -c1-19)" "a system-wide virtual display was created; check the Mac's own screen for ghosting, reboot if any, then mactv start"
+  fi
+  local last; last=$(grep -E "session open|session ended" "$RUNTIME/holder.log" 2>/dev/null | tail -1)
+  case "$last" in
+    *"session open"*) ok "holder holds $SESSION_USER's session" ;;
+    *) bad "session not held: ${last:-no holder log}" "see $RUNTIME/holder.log (wrong password: delete keychain item \"MacTV session\" and run mactv install)" ;;
+  esac
+  listening "$(conf holderPort 8811)" && ok "input relay listening" || bad "input relay not listening" "the holder is not running"
+  echo "Host ($SESSION_USER)"
+  pgrep -u "$SESSION_USER" -x MacTVHost >/dev/null && ok "host running" || bad "host not running" "it starts with the session; see $RUNTIME/host.log (Screen Recording granted in the session?)"
+  local st; st=$(admin status 2>/dev/null)
+  if [ -n "$st" ]; then
+    echo "$st" | python3 -c '
+import json, sys
+s = json.load(sys.stdin)
+def ok(m): print("  \033[32m✓\033[0m " + m)
+def bad(m, h): print("  \033[31m✗\033[0m %s\n      → %s" % (m, h))
+p = s["picture"]
+(ok if p.get("capturing", True) else lambda m: bad(m, "Screen Recording for MacTV Host in the session; see host.log"))("capturing the session display" if p.get("capturing", True) else "not capturing")
+r = s["receiver"]
+if r["connected"]:
+    c = r["client"]
+    ok("TV connected: %s, %s link, %.1f Mbps, %d frames dropped" % (c.get("device"), c.get("link"), r["mbpsAverage"], r["framesDropped"]))
+else:
+    print("  \033[33m•\033[0m no TV connected right now")
+a = s["sound"]
+if a.get("silentRebuilds", 0) > 3:
+    bad("sound tap rebuilt %d times" % a["silentRebuilds"], "the browser audio may be stuck muted: quit and reopen that app on the TV")
+else:
+    ok("sound: %s, %d processes" % ("tapping" if a.get("tapping") else "idle", a.get("processes", 0)))
+ok("paired TVs: %d" % s["pairing"]["devices"])
+svc = s.get("services", {})
+for k, v in svc.items():
+    (ok if v else lambda m: bad(m, "see its log in the runtime directory"))("service %s %s" % (k, "running" if v else "stopped"))
+'
+  else
+    bad "host not answering on its admin port" "see $RUNTIME/host.log"
+  fi
+  listening "$PORT" && ok "TV port $PORT listening" || bad "TV port $PORT not listening" "the host is not running"
+  if [ -n "${FAIL:-}" ]; then exit 1; else echo "All good."; fi
+}
+
+logs() {
+  local f
+  case "${1:-host}" in
+    host|holder|guard) f=$RUNTIME/${1:-host}.log ;;
+    # An app's service logs to <app>-<program>.log (Services.swift).
+    *) f=$(ls "$RUNTIME/$1"-*.log 2>/dev/null | head -1)
+       [ -n "$f" ] || { echo "logs host|holder|guard|<app> [-f]"; exit 1; } ;;
+  esac
+  if [ "${2:-}" = "-f" ]; then tail -f "$f"; else tail -40 "$f"; fi
+}
+
+cmd=${1:-help}; shift || true
+case "$cmd" in
+  preflight) preflight; [ -z "${FAIL:-}" ] ;;
+  install) install ;;
+  uninstall) uninstall ;;
+  start) start ;;
+  stop) stop ;;
+  restart) restart "$@" ;;
+  status) admin status ;;
+  doctor) doctor ;;
+  pair) pair "$@" ;;
+  devices) admin devices ;;
+  unpair) admin "unpair ${1:?unpair <id|all>}" ;;
+  logs) logs "$@" ;;
+  filter) admin "filter ${1:?filter on|off}" ;;
+  *) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//' ;;
+esac

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MacTV</string>
+    <string name="searching">正在寻找 Mac</string>
+    <string name="searching_detail">请确认 Mac 已开机并装好了 MacTV。也可以按菜单键 → 设置，手动输入它的地址。</string>
+    <string name="connecting">正在连接</string>
+    <string name="connected">已连接</string>
+    <string name="waiting">正在等待画面…</string>
+    <string name="nodecoder">电视的视频解码器被占用</string>
+    <string name="nodecoder_detail">电视系统没有让出解码器（通常被直播电视占着），重启电视后再试。</string>
+    <string name="pair_title">与 Mac 配对</string>
+    <string name="pair_detail">在 Mac 上运行：mactv pair\n然后输入它显示的 6 位数字。</string>
+    <string name="pair_wrong">数字不对。请在 Mac 上重新运行 mactv pair 获取新的数字。</string>
+    <string name="pair_ok">配对</string>
+    <string name="paired">配对成功</string>
+    <string name="lost_title">与 Mac 的连接中断了</string>
+    <string name="lost_exit">退出</string>
+    <string name="lost_wake">唤醒 Mac 并重试</string>
+    <string name="woke">已向 Mac 发送唤醒信号</string>
+    <string name="why_stalled">Mac 还在，但画面停住了。电视上的其他应用不受影响。</string>
+    <string name="why_noscreen">Mac 在线，但它的 MacTV 服务没有在推流（在 Mac 上运行 mactv doctor 查看）。</string>
+    <string name="why_nomac">找不到 Mac：它可能睡着了、关机了，或者不在这个网络上。</string>
+    <string name="first_hint">菜单键：菜单　·　长按返回键：退出</string>
+    <string name="menu_hint">菜单键或返回键收起　·　长按返回键退出</string>
+    <string name="menu_desktop">桌面</string>
+    <string name="menu_keyboard">键盘输入</string>
+    <string name="menu_fill">填满窗口</string>
+    <string name="menu_pointer">指针模式</string>
+    <string name="menu_keys">按键模式</string>
+    <string name="menu_settings">设置</string>
+    <string name="mode_pointer">指针模式：方向键移动，确认键点击</string>
+    <string name="mode_keys">按键模式：方向键和确认键直接发给 Mac</string>
+    <string name="settings_address">Mac 的地址</string>
+    <string name="settings_forget">忘记这台 Mac（重新配对）</string>
+    <string name="search">搜索</string>
+    <string name="type_to_mac">输入到 Mac</string>
+    <string name="send">发送</string>
+</resources>
